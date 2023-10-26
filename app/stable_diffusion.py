@@ -5,7 +5,7 @@ Stable Diffusion XL model for generating images from prompts.
 import base64
 import io
 import torch
-from diffusers import StableDiffusionXLPipeline, AutoencoderKL
+from diffusers import DiffusionPipeline, AutoencoderKL
 from PIL import Image
 
 
@@ -34,7 +34,7 @@ class StableDiffusionXL():
         self.vae = AutoencoderKL.from_pretrained(
             "madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16)
 
-        self.pipe = StableDiffusionXLPipeline.from_pretrained(
+        self.pipe = DiffusionPipeline.from_pretrained(
             "stabilityai/stable-diffusion-xl-base-1.0",
             vae=self.vae,
             torch_dtype=torch.float16,
@@ -63,11 +63,13 @@ class StableDiffusionXL():
             adapter_name="ColoringBookRedmond"
         )
 
-        self.pipe.set_adapters(
+        self.pipe.set_adapters([
             "LogoRedmondV2",
             "StickersRedmond",
-            "ColoringBookRedmond"
+            "ColoringBookRedmond"], 
+            adapter_weights=[0.7, 0.5, 0.5]
         )
+        print("Adapters set")
 
     @staticmethod
     def images_to_base64(images) -> list:

@@ -5,10 +5,12 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
 
-from app.stable_diffusion import StableDiffusionXL
+from stable_diffusion import StableDiffusionXL
 
 # FastAPI app
 app = FastAPI()
+
+
 
 
 class Txt2ImgRequest(BaseModel):
@@ -47,7 +49,6 @@ def get_pipe():
     pipeline = StableDiffusionXL()
     pipeline.set_adapters()
     return pipeline
-
 
 # Dependency to get the pipe
 pipe_dependency = get_pipe()
