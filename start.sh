@@ -22,6 +22,16 @@ setup_ssh() {
     fi
 }
 
+# Execute script if exists
+execute_script() {
+    local script_path=$1
+    local script_msg=$2
+    if [[ -f ${script_path} ]]; then
+        echo "${script_msg}"
+        bash ${script_path}
+    fi
+}
+
 # Export env vars
 export_env_vars() {
     echo "Exporting environment variables..."
