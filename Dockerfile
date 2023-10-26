@@ -75,7 +75,7 @@ WORKDIR /app
 COPY ./app /app
 
 # Install Python libraries
-RUN pip install fastapi uvicorn && \
+RUN pip install fastapi uvicorn jupyterlab transformers accelerate && \
   pip install -r requirements.txt
 
 # Add and set permissions for start script
