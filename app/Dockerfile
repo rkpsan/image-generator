@@ -6,7 +6,9 @@ WORKDIR /app
 
 # Установите зависимости
 COPY requirements.txt ./
-RUN pip install fastapi uvicorn transformers accelerate diffusers peft && \
+RUN pip install fastapi uvicorn transformers accelerate && \
+  pip install git+https://github.com/huggingface/peft.git && \
+  pip install git+https://github.com/huggingface/diffusers.git && \
   pip install -r requirements.txt
 
 # Копируйте исходный код приложения
