@@ -52,6 +52,16 @@ def get_pipe():
 # Dependency to get the pipe
 pipe_dependency = get_pipe()
 
+@app.get("/ping")
+def ping() -> str:
+    """
+    Returns a string to indicate that the server is running.
+
+    Returns:
+      A string indicating that the server is running.
+    """
+    return "pong"
+
 
 @app.post("/txt2img", response_model=Txt2ImgResponse)
 def txt2img(request: Txt2ImgRequest,
