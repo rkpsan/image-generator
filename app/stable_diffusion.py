@@ -29,41 +29,46 @@ class StableDiffusionXL():
     Generates a batch of images using the given prompt and number of
     inference steps.
     """
+    model = None
+    
+    @classmethod
+    def get_model(cls):
+        if cls.model is None:
+            cls.vae = AutoencoderKL.from_pretrained(
+                "madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16)
 
-    def __init__(self):
-        self.vae = AutoencoderKL.from_pretrained(
-            "madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16)
+            cls.pipe = DiffusionPipeline.from_pretrained(
+                "stabilityai/stable-diffusion-xl-base-1.0",
+                vae=cls.vae,
+                torch_dtype=torch.float16,
+            ).to("cuda")
+            cls.model = cls.pipe
+        return cls.model
 
-        self.pipe = DiffusionPipeline.from_pretrained(
-            "stabilityai/stable-diffusion-xl-base-1.0",
-            vae=self.vae,
-            torch_dtype=torch.float16,
-        )
-        self.pipe.to("cuda")
-
-    def set_adapters(self) -> None:
+    @classmethod
+    def set_adapters(cls) -> None:
         """
         Loads LORA weights for the LogoRedmondV2, StickersRedmond,
         and ColoringBookRedmond adapters, and sets them on the pipeline.
         """
 
-        self.pipe.load_lora_weights(
+        cls.pipe.load_lora_weights(
             "artificialguybr/LogoRedmond-LogoLoraForSDXL-V2",
             weight_name="LogoRedmondV2-Logo-LogoRedmAF.safetensors",
             adapter_name="LogoRedmondV2"
         )
-        self.pipe.load_lora_weights(
+        cls.pipe.load_lora_weights(
             "artificialguybr/StickersRedmond",
             weight_name="StickersRedmond.safetensors",
             adapter_name="StickersRedmond"
         )
-        self.pipe.load_lora_weights(
+        cls.pipe.load_lora_weights(
             "artificialguybr/ColoringBookRedmond",
             weight_name="ColoringBookRedmond-ColoringBookAF.safetensors",
             adapter_name="ColoringBookRedmond"
         )
 
-        self.pipe.set_adapters([
+        cls.pipe.set_adapters([
             "LogoRedmondV2",
             "StickersRedmond",
             "ColoringBookRedmond"], 
@@ -84,14 +89,14 @@ class StableDiffusionXL():
         """
         images_base64 = []
         for image in images:
-            image = Image.fromarray(image)
             buff = io.BytesIO()
             image.save(buff, format="PNG")
             image_base64 = base64.b64encode(buff.getvalue()).decode("utf-8")
             images_base64.append(image_base64)
         return images_base64
 
-    def generate_images(self, num_inference_steps, prompt, batch_size=1):
+    @classmethod
+    def generate_images(cls, num_inference_steps, prompt, batch_size=1):
         """
         Generates a batch of images using the given prompt and number
         of inference steps.
@@ -108,7 +113,7 @@ class StableDiffusionXL():
         """
         images = []
         for _ in range(batch_size):
-            image = self.pipe(
+            image = cls.model(
                 prompt, num_inference_steps=num_inference_steps).images[0]
             images.append(image)
         return images
