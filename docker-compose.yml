@@ -1,19 +1,20 @@
 version: '3'
 
 services:
-  web:
-    image: nginx:latest
+  nginx:
+    build: nginx
     ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - 80:80
+      - 443:443
     depends_on:
-      - backend
-      - jupyterlab
+      - app
+
 
   app:
     build:
-      context: ./backend
+      context: ./app
       dockerfile: Dockerfile
     expose:
       - "8000"
+    ports:
+      - 8000:8000

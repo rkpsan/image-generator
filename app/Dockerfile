@@ -4,6 +4,10 @@ FROM python:3.9-slim
 # Установите рабочую директорию
 WORKDIR /app
 
+# Установка Git
+RUN apt-get update && apt-get install -y git
+
+
 # Установите зависимости
 COPY requirements.txt ./
 RUN pip install fastapi uvicorn transformers accelerate && \
