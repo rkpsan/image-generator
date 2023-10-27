@@ -17,10 +17,3 @@ services:
       dockerfile: Dockerfile
     expose:
       - "8000"
-
-  jupyterlab:
-    image: jupyter/base-notebook:latest
-    ports:
-      - "8888:8888"
-    volumes:
-      - ./notebooks:/home/jovyan/work
