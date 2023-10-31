@@ -7,6 +7,7 @@ app = FastAPI()
 
 def get_nn_model():
     StableDiffusionXL.get_model()
+    StableDiffusionXL.set_adapters()
     return StableDiffusionXL
 
 class Txt2ImgRequest(BaseModel):

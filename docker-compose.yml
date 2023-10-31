@@ -9,7 +9,6 @@ services:
     depends_on:
       - app
 
-
   app:
     build:
       context: ./app
@@ -18,3 +17,14 @@ services:
       - "8000"
     ports:
       - 8000:8000
+
+  tests:
+    build:
+      context: ./tests
+      dockerfile: Dockerfile.tests
+    depends_on:
+      - app
+      - nginx
+    volumes:
+      - ./tests:/tests
+    command: pytest /tests

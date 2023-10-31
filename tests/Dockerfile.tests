@@ -1,0 +1,15 @@
+# Используйте официальный образ Python
+FROM python:3.9-slim
+
+# Установите рабочую директорию
+WORKDIR /tests
+
+# Установите зависимости
+COPY requirements-tests.txt .
+RUN pip install --no-cache-dir -r requirements-tests.txt
+
+# Копируйте тесты в контейнер
+COPY . .
+
+# Запустите команду по умолчанию
+CMD ["pytest", "-vv"]
