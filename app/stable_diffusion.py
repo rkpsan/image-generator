@@ -9,7 +9,7 @@ from diffusers import DiffusionPipeline, AutoencoderKL, EulerAncestralDiscreteSc
 from PIL import Image
 
 
-class StableDiffusionXL():
+class StableDiffusionXL:
     """
     A class for generating images using the Stable Diffusion XL model.
 
@@ -29,13 +29,14 @@ class StableDiffusionXL():
     Generates a batch of images using the given prompt and number of
     inference steps.
     """
+
     model = None
-    
+
     @classmethod
     def get_model(cls):
         """
         Returns the DiffusionPipeline model for stable diffusion.
-        
+
         Frozen start takes about 16 GB to load, so we load it once and
         reuse it for all requests.
 
@@ -48,9 +49,12 @@ class StableDiffusionXL():
         """
         if cls.model is None:
             cls.vae = AutoencoderKL.from_pretrained(
-                "madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16)
-            
-            cls.euler_anc = EulerAncestralDiscreteScheduler.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", subfolder="scheduler")
+                "madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16
+            )
+
+            cls.euler_anc = EulerAncestralDiscreteScheduler.from_pretrained(
+                "stabilityai/stable-diffusion-xl-base-1.0", subfolder="scheduler"
+            )
 
             # Load the model from HuggingFace, 6 GB
             cls.pipe = DiffusionPipeline.from_pretrained(
@@ -59,7 +63,9 @@ class StableDiffusionXL():
                 vae=cls.vae,
                 torch_dtype=torch.float16,
             ).to("cuda")
-            cls.pipe.unet = torch.compile(cls.pipe.unet, mode="reduce-overhead", fullgraph=True)
+            cls.pipe.unet = torch.compile(
+                cls.pipe.unet, mode="reduce-overhead", fullgraph=True
+            )
             cls.model = cls.pipe
         return cls.model
 
@@ -70,34 +76,31 @@ class StableDiffusionXL():
         and ColoringBookRedmond adapters, and sets them on the pipeline.
         """
 
-        # cls.model.load_lora_weights(
-        #     "artificialguybr/LogoRedmond-LogoLoraForSDXL-V2",
-        #     weight_name="LogoRedmondV2-Logo-LogoRedmAF.safetensors",
-        #     adapter_name="LogoRedmondV2"
-        # )
-        cls.pipe.load_lora_weights(
+        cls.model.load_lora_weights(
+            "artificialguybr/LogoRedmond-LogoLoraForSDXL-V2",
+            weight_name="LogoRedmondV2-Logo-LogoRedmAF.safetensors",
+            adapter_name="LogoRedmondV2",
+        )
+        cls.model.load_lora_weights(
             "artificialguybr/StickersRedmond",
             weight_name="StickersRedmond.safetensors",
-            adapter_name="Stickers"
+            adapter_name="Stickers",
         )
-        # cls.pipe.load_lora_weights(
-        #     "artificialguybr/ColoringBookRedmond",
-        #     weight_name="ColoringBookRedmond-ColoringBookAF.safetensors",
-        #     adapter_name="ColoringBookRedmond"
-        # )
+        cls.model.load_lora_weights(
+            "artificialguybr/ColoringBookRedmond",
+            weight_name="ColoringBookRedmond-ColoringBookAF.safetensors",
+            adapter_name="ColoringBookRedmond"
+        )
 
-        cls.model.set_adapters([
-            # "LogoRedmond",
-            "Stickers",
-            # "ColoringBookRedmond"
-            ], 
-            adapter_weights=[
-                # 1, 
-                             1,
-                            # 0.5
-                             ]
+        cls.model.set_adapters(
+            [
+                "LogoRedmond",
+                "Stickers",
+                "ColoringBook"
+            ],
+            adapter_weights=[1, 1, 0.5],
         )
-        
+
         print("Adapters set")
 
     @staticmethod
@@ -138,6 +141,9 @@ class StableDiffusionXL():
         images = []
         for _ in range(batch_size):
             image = cls.model(
-                prompt, num_inference_steps=num_inference_steps, cross_attention_kwargs={"scale": 1.0}).images[0]
+                prompt,
+                num_inference_steps=num_inference_steps,
+                cross_attention_kwargs={"scale": 1.0},
+            ).images[0]
             images.append(image)
         return images
