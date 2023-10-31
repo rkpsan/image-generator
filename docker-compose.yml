@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  nginx:
+    build: nginx
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    expose:
+      - "8000"
+    ports:
+      - 8000:8000
+
+  tests:
+    build:
+      context: ./tests
+      dockerfile: Dockerfile.tests
+    depends_on:
+      - app
+      - nginx
+    volumes:
+      - ./tests:/tests
+    command: pytest /tests
