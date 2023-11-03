@@ -63,9 +63,9 @@ class StableDiffusionXL:
                 vae=cls.vae,
                 torch_dtype=torch.float16,
             ).to("cuda")
-            cls.pipe.unet = torch.compile(
-                cls.pipe.unet, mode="reduce-overhead", fullgraph=True
-            )
+            # cls.pipe.unet = torch.compile(
+            #     cls.pipe.unet, mode="reduce-overhead", fullgraph=True
+            # )
             cls.model = cls.pipe
         return cls.model
 
