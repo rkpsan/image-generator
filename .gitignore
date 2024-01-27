@@ -10,3 +10,4 @@ tests/pytest_cache/*
 tests/venv/*
 app/models/lazymixRealAmateur_v40.safetensors
 test_images/*
+.vscode/*
