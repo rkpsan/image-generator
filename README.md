@@ -19,6 +19,18 @@ This API implements the following routes:
 | `/docs`     	    | GET           	| READ        	    | get documentaion   	|
 | `/txt2img`	    | POST         	    | INSERT        	| get generated image  	|
 
+## Container Preparation
+
+Download the lazymixv40 model from the link https://civitai.com/models/10961?modelVersionId=300972
+
+Add the file to volumes/models
+
+Final path:
+
+```bash
+volumes/models/lazymixRealAmateur_v40.safetensors
+```
+
 ## Build the API image
 
 To build, test and run this API we'll be using `docker-compose`. As such, the first step
@@ -41,8 +53,7 @@ To run the containers previously built, execute the following:
 $ docker-compose up -d
 ```
 
-This will launch two services named `app` (the API) and `nginx` (the underlying 
-database) in background. The `web` service will be running on port `8000` on localhost. 
+This will launch two services named `app` (the API) and `nginx`. The `app` service will be running on port `8000` on localhost. 
 Whereas the router will be exposed to the `nginx` service. To make sure the
 app is running correctly open [http://localhost:80/ping](http://localhost:80/ping) in 
 your web browser (and/or run `docker-compose logs -f` from the command line). 
