@@ -1,27 +1,25 @@
 """
-Stable Diffusion XL model for generating images from prompts.
+Stable Diffusion model for generating images from prompts.
 """
 
-import base64
-import io
 import torch
-from diffusers import DiffusionPipeline, AutoencoderKL, EulerAncestralDiscreteScheduler
-from PIL import Image
+from diffusers import StableDiffusionPipeline
+import transformers
+
+transformers.utils.move_cache()
 
 
-class StableDiffusionXL:
+class StableDiffusionModel:
     """
-    A class for generating images using the Stable Diffusion XL model.
+    A class for generating images using the Stable Diffusion model.
 
     Attributes:
-    - vae (AutoencoderKL): The VAE model used by the pipeline.
-    - pipe (StableDiffusionXLPipeline): The pipeline used for
+    - pipe (StableDiffusionPipeline): The pipeline used for
     generating images.
 
     Methods:
-    - __init__(): Initializes the StableDiffusionXL object.
-    - set_adapters(): Loads LORA weights for the LogoRedmondV2,
-    StickersRedmond,and ColoringBookRedmond adapters, and sets them
+    - __init__(): Initializes the StableDiffusion object.
+    - set_adapters(): Loads LORA weights for the adapter, and sets him
     on the pipeline.
     - images_to_base64(images): Converts a list of images to
     a list of base64-encoded strings.
@@ -37,30 +35,20 @@ class StableDiffusionXL:
         """
         Returns the DiffusionPipeline model for stable diffusion.
 
-        Frozen start takes about 16 GB to load, so we load it once and
+        Frozen start takes about 10 GB to load, so we load it once and
         reuse it for all requests.
 
-        If the model has not been initialized, it will be loaded from the pre-trained models
-        "madebyollin/sdxl-vae-fp16-fix" and "stabilityai/stable-diffusion-xl-base-1.0".
         The model will be loaded onto the GPU for faster computation.
 
         Returns:
             DiffusionPipeline: The pre-trained DiffusionPipeline model for stable diffusion.
         """
         if cls.model is None:
-            cls.vae = AutoencoderKL.from_pretrained(
-                "madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16
-            )
 
-            cls.euler_anc = EulerAncestralDiscreteScheduler.from_pretrained(
-                "stabilityai/stable-diffusion-xl-base-1.0", subfolder="scheduler"
-            )
-
-            # Load the model from HuggingFace, 6 GB
-            cls.pipe = DiffusionPipeline.from_pretrained(
-                "stabilityai/stable-diffusion-xl-base-1.0",
-                scheduler=cls.euler_anc,
-                vae=cls.vae,
+            # Load the model from folder, 4 GB
+            cls.pipe = StableDiffusionPipeline.from_single_file(
+                "models/lazymixRealAmateur_v40.safetensors",
+                load_safety_checker=False,
                 torch_dtype=torch.float16,
             ).to("cuda")
             # cls.pipe.unet = torch.compile(
@@ -70,60 +58,26 @@ class StableDiffusionXL:
         return cls.model
 
     @classmethod
-    def set_adapters(cls) -> None:
+    def set_adapter(cls, repo, adapter_name, weight_name, weight) -> None:
         """
-        Loads LORA weights for the LogoRedmondV2, StickersRedmond,
-        and ColoringBookRedmond adapters, and sets them on the pipeline.
+        Loads LORA weights, adapter, and sets on the pipeline.
         """
 
         cls.model.load_lora_weights(
-            "artificialguybr/LogoRedmond-LogoLoraForSDXL-V2",
-            weight_name="LogoRedmondV2-Logo-LogoRedmAF.safetensors",
-            adapter_name="LogoRedmondV2",
-        )
-        cls.model.load_lora_weights(
-            "artificialguybr/StickersRedmond",
-            weight_name="StickersRedmond.safetensors",
-            adapter_name="Stickers",
-        )
-        cls.model.load_lora_weights(
-            "artificialguybr/ColoringBookRedmond",
-            weight_name="ColoringBookRedmond-ColoringBookAF.safetensors",
-            adapter_name="ColoringBookRedmond"
+            repo,
+            weight_name=weight_name,
+            adapter_name=adapter_name,
         )
 
-        cls.model.set_adapters(
-            [
-                "LogoRedmond",
-                "Stickers",
-                "ColoringBook"
-            ],
-            adapter_weights=[1, 1, 0.5],
+        cls.model.set_adapter(
+            adapter_name,
+            adapter_weights=weight,
         )
 
-        print("Adapters set")
-
-    @staticmethod
-    def images_to_base64(images) -> list:
-        """
-        Converts a list of images to a list of base64-encoded strings.
-
-        Args:
-          images (list): A list of images in numpy array format.
-
-        Returns:
-          list: A list of base64-encoded strings representing the input images.
-        """
-        images_base64 = []
-        for image in images:
-            buff = io.BytesIO()
-            image.save(buff, format="PNG")
-            image_base64 = base64.b64encode(buff.getvalue()).decode("utf-8")
-            images_base64.append(image_base64)
-        return images_base64
+        print("Adapter set")
 
     @classmethod
-    def generate_images(cls, num_inference_steps, prompt, batch_size=1):
+    def generate_images(cls, num_inference_steps, prompt, width, height, batch_size):
         """
         Generates a batch of images using the given prompt and number
         of inference steps.
@@ -142,6 +96,8 @@ class StableDiffusionXL:
         for _ in range(batch_size):
             image = cls.model(
                 prompt,
+                width=width,
+                height=height,
                 num_inference_steps=num_inference_steps,
                 cross_attention_kwargs={"scale": 1.0},
             ).images[0]

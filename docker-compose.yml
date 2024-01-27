@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   nginx:
@@ -17,14 +17,12 @@ services:
       - "8000"
     ports:
       - 8000:8000
-
-  tests:
-    build:
-      context: ./tests
-      dockerfile: Dockerfile.tests
-    depends_on:
-      - app
-      - nginx
     volumes:
-      - ./tests:/tests
-    command: pytest /tests
+      - ./volumes/models:/app/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

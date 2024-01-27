@@ -1,5 +1,5 @@
 # Используйте официальный образ Python
-FROM python:3.9-slim
+FROM python:3.10.2-slim
 
 # Установите рабочую директорию
 WORKDIR /app
@@ -23,3 +23,4 @@ EXPOSE 8000
 
 # Запустите приложение
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+

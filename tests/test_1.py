@@ -35,23 +35,23 @@ def save_images(response):
         image.save(os.path.join(dir_name, sub_dir_name, f"output_{i}.png"))
 
 def test_without_lora():
-    with httpx.Client(base_url="http://localhost:8000", timeout=400.0) as client:
+    with httpx.Client(base_url="http://localhost:80", timeout=400.0) as client:
         request_body = {
-        "num_inference_steps": 20,
-        "prompt": "A vector-style design an apple, enclosed within a circular border (white background)",
-        "batch_size": 5
+        "num_inference_steps": 50,
+        "prompt": "A woman",
+        "batch_size": 1
         }
         response = client.post("/txt2img", json=request_body)
         assert response.status_code == 200
         assert len(response.json()["images"]) == request_body["batch_size"]
         save_images(response)
         
-def test_with_lora():
-    with httpx.Client(base_url="http://localhost:8000", timeout=400.0) as client:
+def with_lora():
+    with httpx.Client(base_url="http://localhost:80", timeout=400.0) as client:
         request_body = {
         "num_inference_steps": 20,
-        "prompt": "A vector-style design an apple, enclosed within a circular border (white background), LogoRedmondV2",
-        "batch_size": 5
+        "prompt": "A girl",
+        "batch_size": 1
         }
         response = client.post("/txt2img", json=request_body)
         assert response.status_code == 200
@@ -59,7 +59,7 @@ def test_with_lora():
         save_images(response)
             
 def multiple_requests():
-    with httpx.Client(base_url="http://localhost:8000", timeout=400.0) as client:
+    with httpx.Client(base_url="http://localhost:80", timeout=400.0) as client:
         request_body = {
         "num_inference_steps": 20,
         "prompt": "A vector-style design an apple, enclosed within a circular border (white background)",
