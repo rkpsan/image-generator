@@ -18,5 +18,5 @@ services:
     ports:
       - "3000:3001"
     environment:
-      HUGGINGFACE_TOKEN: "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"
+      HUGGINGFACE_TOKEN: ${HUGGINGFACE_TOKEN}
     restart: unless-stopped
