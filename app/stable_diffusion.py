@@ -2,11 +2,13 @@
 Stable Diffusion model for generating images from prompts.
 """
 
+import os
 import torch
 from diffusers import StableDiffusionPipeline
 import transformers
 
 transformers.utils.move_cache()
+
 
 
 class StableDiffusionModel:
@@ -44,12 +46,12 @@ class StableDiffusionModel:
             DiffusionPipeline: The pre-trained DiffusionPipeline model for stable diffusion.
         """
         if cls.model is None:
-
             # Load the model from folder, 4 GB
             cls.pipe = StableDiffusionPipeline.from_single_file(
-                "models/lazymixRealAmateur_v40.safetensors",
+                "https://huggingface.co/rkpsmix/epicrealism_naturalSinRC1VAE/blob/main/epicrealism_naturalSinRC1VAE.safetensors",
                 load_safety_checker=False,
                 torch_dtype=torch.float16,
+                token=os.getenv("HUGGINGFACE_TOKEN"),
             ).to("cuda")
             # cls.pipe.unet = torch.compile(
             #     cls.pipe.unet, mode="reduce-overhead", fullgraph=True

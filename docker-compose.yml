@@ -1,28 +1,22 @@
 version: '3.8'
 
 services:
-  nginx:
-    build: nginx
-    ports:
-      - 80:80
-      - 443:443
-    depends_on:
-      - app
-
-  app:
+  stable-diffusion-webui:
     build:
-      context: ./app
+      context: .
       dockerfile: Dockerfile
-    expose:
-      - "8000"
-    ports:
-      - 8000:8000
-    volumes:
-      - ./volumes/models:/app/models
+    image: imagegenerator:latest
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              count: all
               capabilities: [gpu]
+    volumes:
+      - /workspace:/workspace
+    ports:
+      - "3000:3001"
+    environment:
+      HUGGINGFACE_TOKEN: "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"
+    restart: unless-stopped

@@ -35,9 +35,9 @@ def save_images(response):
         image.save(os.path.join(dir_name, sub_dir_name, f"output_{i}.png"))
 
 def test_without_lora():
-    with httpx.Client(base_url="http://localhost:80", timeout=400.0) as client:
+    with httpx.Client(base_url="http://localhost:3000", timeout=400.0) as client:
         request_body = {
-        "num_inference_steps": 50,
+        "num_inference_steps": 150,
         "prompt": "A woman",
         "batch_size": 1
         }
