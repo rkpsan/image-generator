@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: imagegenerator:latest
+    image: hotgens:latest
     deploy:
       resources:
         reservations:
