@@ -2,10 +2,10 @@ version: '3.8'
 
 services:
   stable-diffusion-webui:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: hotgens:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: rukapsan/hotgens:latest
     deploy:
       resources:
         reservations:
