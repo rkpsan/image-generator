@@ -19,17 +19,6 @@ This API implements the following routes:
 | `/docs`     	    | GET           	| READ        	    | get documentaion   	|
 | `/txt2img`	    | POST         	    | INSERT        	| get generated image  	|
 
-## Container Preparation
-
-Download the lazymixv40 model from the link https://civitai.com/models/10961?modelVersionId=300972
-
-Add the file to volumes/models
-
-Final path:
-
-```bash
-volumes/models/lazymixRealAmateur_v40.safetensors
-```
 
 ## Build the API image
 
